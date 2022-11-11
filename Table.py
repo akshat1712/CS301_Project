@@ -218,8 +218,8 @@ commands =[
     CREATE TABLE IF NOT EXISTS service(
         train_no VARCHAR(5) ,
         station_name VARCHAR(50) NOT NULL,
-        arrival_time interval;
-        departure_time interval;
+        arrival_time interval,
+        departure_time interval
         )
     """
 ]

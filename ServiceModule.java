@@ -42,7 +42,6 @@ class QueryRunner implements Runnable {
                 //         + socketConnection.getRemoteSocketAddress().toString());
 
                 /********************************************/
-                // Your DB code goes here
                 
                 Connection c = null;
                 try {
@@ -70,10 +69,28 @@ class QueryRunner implements Runnable {
                     }
                     query+="]);";
 
-                    System.out.println(query);
+
+                    c.createStatement().execute("BEGIN;");
+    
+                    c.createStatement().execute("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
+
+                    String createTableSQL = query;
+    
+                    Statement statement = c.createStatement();
+                    
+                    statement.executeQuery(createTableSQL);
+
+                    c.createStatement().execute("commit;");
+
+                    c.close();
+
+                    System.err.println(" Booked your ticket\n");
+
+                    responseQuery="BOOKED YOUR TICKET";
 
                 } catch (Exception e) {
                     System.out.println("ERROR");
+                    responseQuery="ERROR";
                 }
 
                 /********************************************/
