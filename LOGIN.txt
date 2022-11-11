@@ -1,0 +1,3 @@
+DATABASE NAME: project
+user: cs301_pro
+password:1234
