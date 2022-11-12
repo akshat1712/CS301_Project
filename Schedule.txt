@@ -1,0 +1,69 @@
+6909 2023-01-11 0  5 
+4523 2023-05-10 0  5 
+6581 2023-04-10 0  5 
+5332 2023-08-08 0  5 
+4423 2023-02-19 0  5 
+3983 2023-11-13 0  5 
+5914 2023-10-21 0  5 
+5859 2023-01-03 0  5 
+5653 2023-09-14 0  5 
+2495 2023-07-19 0  5 
+#
+
+insert into stations values(1,'A');
+insert into stations values(2,'B');
+
+insert into trains values(6909,1,2);
+insert into trains values(4523,1,2);
+insert into trains values(6581,1,2);
+insert into trains values(5332,1,2);
+insert into trains values(4423,1,2);
+insert into trains values(3983,1,2);
+insert into trains values(5914,1,2);
+insert into trains values(5859,1,2);
+insert into trains values(5653,1,2);
+insert into trains values(2495,1,2);
+
+
+insert into service_6909 values('2023-01-11',0,5,0,0);
+insert into service_4523 values('2023-05-10',0,5,0,0);
+insert into service_6581 values('2023-04-10',0,5,0,0);
+insert into service_5332 values('2023-08-08',0,5,0,0);
+insert into service_4423 values('2023-02-19',0,5,0,0);
+insert into service_3983 values('2023-11-13',0,5,0,0);
+insert into service_5914 values('2023-10-21',0,5,0,0);
+insert into service_5859 values('2023-01-03',0,5,0,0);
+insert into service_5653 values('2023-09-14',0,5,0,0);
+insert into service_2495 values('2023-07-19',0,5,0,0);
+
+
+// Shah
+
+insert into stations values('A','P');
+insert into stations values('B','Q');
+
+insert into trains values('04652','A','B');
+insert into trains values('22517','A','B');
+
+insert into service_22517 values('2022-11-01',999,999,0,0);
+insert into service_04652 values('2022-11-01',999,999,0,0);
+
+
+
+
+DROP TABLE ticket_passenger_04652;
+DROP TABLE ticket_passenger_22517;
+
+DROP TABLE ticket_22517;
+DROP TABLE ticket_04652;
+
+DROP TABLE service_22517;
+DROP TABLE service_04652;
+
+TRUNCATE trains;
+
+insert into trains values('04652','A','B');
+insert into trains values('22517','A','B');
+
+insert into service_22517 values('2022-11-01',999,999,0,0);
+insert into service_04652 values('2022-11-01',999,999,0,0);

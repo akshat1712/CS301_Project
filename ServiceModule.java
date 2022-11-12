@@ -38,70 +38,73 @@ class QueryRunner implements Runnable {
             clientCommand = bufferedInput.readLine();
             while (!clientCommand.equals("#")) {
 
-                // System.out.println("Recieved data <" + clientCommand + "> from client : "
-                //         + socketConnection.getRemoteSocketAddress().toString());
-
                 /********************************************/
                 
-                Connection c = null;
-                try {
-                    c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/project", "cs301_pro", "1234");
-                    
-                    String[] splited = clientCommand.split("\\s+");
+                while(true){
+                        Connection c = null;
+                        try {
+                            c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/project", "cs301_pro", "1234");
+                            
+                            String[] splited = clientCommand.split("\\s+");
+        
+                            int size=splited.length;
+        
+                            String train_number=splited[size-3];
+                            String coach_type=splited[size-1];
+                            String date=splited[size-2];
+        
+        
+                            String query="select insert_ticket("+splited[0]+",'"+train_number+"','"+coach_type+"','"+date+"',array[";
+        
+                            for (int i=1;i<size-3;i++){
+                                if( splited[i].endsWith(",")){
+                                    splited[i]="'"+splited[i].substring(0,splited[i].length()-1)+"',";
+                                }
+                                else{
+                                    splited[i]="'"+splited[i]+"'";
+                                }
+                                query+=splited[i];
+                            }
+                            query+="]);";
+        
 
-                    int size=splited.length;
+                            // System.out.println(query);
+        
+                            c.createStatement().execute("BEGIN;");
+            
+                            c.createStatement().execute("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
+        
+                            String createTableSQL = query;
+            
+                            Statement statement = c.createStatement();
+                            
+                            statement.executeQuery(createTableSQL);
+        
+                            c.createStatement().execute("commit;");
+        
+                            c.close();
+        
+                            System.err.println(" Booked your ticket\n");
+        
+                            responseQuery="BOOKED YOUR TICKET";
 
-                    String train_number=splited[size-3];
-                    String coach_type=splited[size-1];
-                    String date=splited[size-2];
-
-                    // String query="select insert_ticket(2,'67890','AC','2022-09-10',array['sourabh','akshat']);";
-                    String query="select insert_ticket("+splited[0]+",'"+train_number+"','"+coach_type+"','"+date+"',array[";
-
-                    for (int i=1;i<size-3;i++){
-                        if( splited[i].endsWith(",")){
-                            splited[i]="'"+splited[i].substring(0,splited[i].length()-1)+"',";
+                            break;
+        
+                        } catch (SQLException e) {
+                            System.err.println(e.getClass().getName()+": "+e.getMessage());
+                            responseQuery="ERROR";
+                            // break;
                         }
-                        else{
-                            splited[i]="'"+splited[i]+"'";
-                        }
-                        query+=splited[i];
-                    }
-                    query+="]);";
 
-
-                    c.createStatement().execute("BEGIN;");
-    
-                    c.createStatement().execute("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
-
-                    String createTableSQL = query;
-    
-                    Statement statement = c.createStatement();
-                    
-                    statement.executeQuery(createTableSQL);
-
-                    c.createStatement().execute("commit;");
-
-                    c.close();
-
-                    System.err.println(" Booked your ticket\n");
-
-                    responseQuery="BOOKED YOUR TICKET";
-
-                } catch (Exception e) {
-                    System.out.println("ERROR");
-                    responseQuery="ERROR";
                 }
 
-                /********************************************/
 
-                // Dummy response send to client
-                responseQuery = "******* Dummy result ******";
-                // Sending data back to the client
                 printWriter.println(responseQuery);
                 // Read next client query
                 clientCommand = bufferedInput.readLine();
             }
+
+            // System.out.println("FINISH");
             inputStream.close();
             bufferedInput.close();
             outputStream.close();

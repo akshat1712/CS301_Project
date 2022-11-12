@@ -54,7 +54,7 @@ commands =[
 
                     EXECUTE '
                         CREATE TABLE IF NOT EXISTS ticket_passenger_'||new.train_no||' (
-                            name varchar(15) NOT NULL,
+                            name varchar(50) NOT NULL,
                             coach_no varchar(3) NOT NULL,
                             berth_no INTEGER NOT NULL,
                             berth_type char(2) NOT NULL,
