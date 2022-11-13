@@ -39,11 +39,11 @@ insert into service_2495 values('2023-07-19',0,5,0,0);
 
 // Shah
 
-insert into stations values('A','P');
-insert into stations values('B','Q');
+insert into stations values('12345','Hyderabad');
+insert into stations values('67890','Delhi');
 
-insert into trains values('04652','A','B');
-insert into trains values('22517','A','B');
+insert into trains values('04652','12345','67890');
+insert into trains values('22517','12345','67890');
 
 insert into service_22517 values('2022-11-01',999,999,0,0);
 insert into service_04652 values('2022-11-01',999,999,0,0);
@@ -62,8 +62,8 @@ DROP TABLE service_04652;
 
 TRUNCATE trains;
 
-insert into trains values('04652','A','B');
-insert into trains values('22517','A','B');
+insert into trains values('04652','12345','67890');
+insert into trains values('22517','12345','67890');
 
 insert into service_22517 values('2022-11-01',999,999,0,0);
 insert into service_04652 values('2022-11-01',999,999,0,0);

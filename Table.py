@@ -215,6 +215,34 @@ commands =[
         ;
     """,
     """
+    create or replace function insert_service_train(train_no VARCHAR(5),date_travel DATE,ac_coach INT,sleeper_coach INT)
+        returns varchar
+        language plpgsql
+        as $$
+        declare
+        c_train varchar(5);
+        from_train varchar := '12345';
+        to_train varchar := '67890';
+        begin
+        EXECUTE '
+                    select train_no from Trains
+                    where train_no = '''||train_no ||''';
+        '   INTO c_train;
+        if c_train IS NULL then
+            EXECUTE '
+                INSERT INTO trains VALUES('''||train_no||''','''||from_train||''','''||to_train||''');
+            ';
+        end if;
+
+        EXECUTE '
+            INSERT INTO service_'||train_no||' VALUES('''||date_travel||''','''||ac_coach||''','''||sleeper_coach||''','''||0||''','''||0||''');
+        ';
+
+        return 'success';
+        end; $$ 
+        ;
+    """,
+    """
     CREATE TABLE IF NOT EXISTS service(
         train_no VARCHAR(5) ,
         station_name VARCHAR(50) NOT NULL,

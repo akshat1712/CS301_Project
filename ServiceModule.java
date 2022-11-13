@@ -36,11 +36,17 @@ class QueryRunner implements Runnable {
             String responseQuery = "";
             // Read client query from the socket endpoint
             clientCommand = bufferedInput.readLine();
+
+        
+            // System.out.println("HELLO");
+
+
             while (!clientCommand.equals("#")) {
 
                 /********************************************/
-                
+
                 while(true){
+
                         Connection c = null;
                         try {
                             c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/project", "cs301_pro", "1234");
@@ -65,8 +71,10 @@ class QueryRunner implements Runnable {
                                 }
                                 query+=splited[i];
                             }
+
                             query+="]);";
-                
+            
+                            // System.out.println(query);
                             c.createStatement().execute("BEGIN;");
             
                             c.createStatement().execute("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
@@ -105,14 +113,10 @@ class QueryRunner implements Runnable {
                             }
                         }
                 }
-
-
                 printWriter.println(responseQuery);
-                // Read next client query
                 clientCommand = bufferedInput.readLine();
             }
 
-            // System.out.println("FINISH");
             inputStream.close();
             bufferedInput.close();
             outputStream.close();
