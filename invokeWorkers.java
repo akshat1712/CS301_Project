@@ -5,9 +5,9 @@ import java.util.concurrent.TimeUnit;
 public class invokeWorkers implements Runnable
 {
     /*************************/
-     int secondLevelThreads = 1;
+     int secondLevelThreads = 50;
     /**************************/
-    public invokeWorkers()            // Constructor to get arguments from the main thread
+    public invokeWorkers( )            // Constructor to get arguments from the main thread
     {
        // Send args from main thread
     }

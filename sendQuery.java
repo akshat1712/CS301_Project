@@ -13,7 +13,9 @@ class sendQuery implements Runnable
 {   /**********************/
      int sockPort = 7008 ;
     /*********************/
-    sendQuery()
+
+
+    sendQuery( )
     {
      // Red args if any
     }   
@@ -29,6 +31,7 @@ class sendQuery implements Runnable
             String inputfile = "./Input/" + Thread.currentThread().getName() + "_input.txt" ;
             String outputfile = "./Output/" +Thread.currentThread().getName() + "_output.txt" ;
 
+            System.out.println(Thread.currentThread().getName() );
             //-----Initialising the Input & ouput file-streams and buffers-------
             OutputStreamWriter outputStream = new OutputStreamWriter(socketConnection
                                                                      .getOutputStream());
@@ -67,7 +70,7 @@ class sendQuery implements Runnable
         } 
         catch (IOException e1)
         {
-            e1.printStackTrace();
+            // e1.printStackTrace();
         }   
     }
 }
