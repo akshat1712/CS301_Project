@@ -1,0 +1,88 @@
+    create or replace function insert_ticket (
+        num_pass int,
+        train_no varchar,
+        coach_type varchar,
+        date_travel DATE,
+        names varchar array
+        ) 
+        returns varchar
+        language plpgsql
+        as $$
+        declare
+        current int; 
+        total int; 
+        num_seats int;
+        seat varchar(2);
+        pnr varchar(20);
+        c_train varchar(5);
+        begin
+        if coach_type = 'AC' then
+            num_seats := 18;
+            EXECUTE '
+                    select ac_curr_berth,ac_coach from service_'||train_no||' 
+                    where travel_date = '' '||date_travel ||' '';	
+            ' INTO current,total; 
+            if current IS NULL then
+                raise exception '200E';
+                return NULL;
+            elsif current + num_pass> num_seats*total then
+                raise exception '300E';
+                return NULL;  
+            else
+                pnr := TO_CHAR(date_travel, 'MMDDYY') ||'0'||train_no|| current ;
+                EXECUTE '
+                            update  service_'||train_no||' set ac_curr_berth = '||current+num_pass||'
+                            where travel_date = '' '||date_travel ||' '';	
+                        ';   
+                EXECUTE '
+                            insert into ticket_'||train_no||' 
+                            values('''||pnr|| ''','''||coach_type|| ''','''||date_travel|| ''','''||train_no||''');	
+                        ';
+                for cnt in 1..num_pass loop
+                    select AC_berth(current) into seat;
+                    EXECUTE '
+                                insert into ticket_passenger_'||train_no||' 
+                                values('''||names[cnt]|| ''','''||floor(current/num_seats)+1|| ''','''||mod(current,num_seats)+1|| ''','''||seat|| ''','''||pnr||''');	
+                            ';
+                    current := current + 1;
+                end loop;
+                return pnr;
+            end if;
+            
+        elsif coach_type = 'SL' then 
+            num_seats := 24;
+            EXECUTE '
+                        select sleeper_curr_berth,sleeper_coach from service_'||train_no||' 
+                        where travel_date = '' '||date_travel ||' '';	
+            ' INTO current,total;
+            if current IS NULL then
+                raise exception '200E';
+                return NULL;
+            elsif current + num_pass> num_seats*total then
+                raise exception '300E';
+                return NULL;
+            else
+                pnr := TO_CHAR(date_travel, 'MMDDYY') ||'1'||train_no|| current ;
+                EXECUTE '
+                            update  service_'||train_no||' set sleeper_curr_berth = '||current+num_pass||'
+                            where travel_date = '' '||date_travel ||' '';	
+                        '; 
+                EXECUTE '
+                                    insert into ticket_'||train_no||' 
+                                    values('''||pnr|| ''','''||coach_type|| ''','''||date_travel|| ''','''||train_no||''');	
+                                ';
+                for cnt in 1..num_pass loop
+                    select SL_berth(current) into seat;
+                    EXECUTE '
+                                    insert into ticket_passenger_'||train_no||' 
+                                    values('''||names[cnt]|| ''','''||floor(current/num_seats)|| ''','''||mod(current,num_seats)|| ''','''||seat|| ''','''||pnr||''');	
+                                ';
+                    current := current + 1;
+                end loop;
+            return pnr;
+            end if;
+        else
+            return NULL;
+        end if;
+        end; $$ 
+        ;

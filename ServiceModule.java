@@ -74,7 +74,6 @@ class QueryRunner implements Runnable {
 
                             query+="]);";
             
-                            // System.out.println(query);
                             c.createStatement().execute("BEGIN;");
             
                             c.createStatement().execute("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
@@ -136,7 +135,7 @@ public class ServiceModule {
     // Server listens to port
     static int serverPort = 7008;
     // Max no of parallel requests the server can process
-    static int numServerCores = 5;
+    static int numServerCores = 50;
 
     // ------------ Main----------------------
     public static void main(String[] args) throws IOException {
