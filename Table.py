@@ -90,10 +90,10 @@ commands =[
         begin
         EXECUTE '
                     select train_no from Trains 
-                    where train_no = '' '||train_no ||' '';	
+                    where train_no = '''||train_no ||''';	
             ' INTO c_train;
-        if c_train = NULL then
-            raise exception '100';
+        if c_train IS NULL then
+            raise exception '100E';
             return NULL;
         end if;
         
@@ -103,11 +103,11 @@ commands =[
                     select ac_curr_berth,ac_coach from service_'||train_no||' 
                     where travel_date = '' '||date_travel ||' '';	
             ' INTO current,total; 
-            if current = NULL then
-                raise exception '200';
+            if current IS NULL then
+                raise exception '200E';
                 return NULL;
             elsif current + num_pass> num_seats*total then
-                raise exception '300';
+                raise exception '300E';
                 return NULL;  
             else
                 pnr := TO_CHAR(date_travel, 'MMDDYY') ||'0'||train_no|| current ;
@@ -136,11 +136,11 @@ commands =[
                         select sleeper_curr_berth,sleeper_coach from service_'||train_no||' 
                         where travel_date = '' '||date_travel ||' '';	
             ' INTO current,total;
-            if current = NULL then
-                raise exception 'SERVICE DOSE NOT EXISTS!!';
+            if current IS NULL then
+                raise exception '200E';
                 return NULL;
             elsif current + num_pass> num_seats*total then
-                raise exception 'Seats are full!!';
+                raise exception '300E';
                 return NULL;
             else
                 pnr := TO_CHAR(date_travel, 'MMDDYY') ||'1'||train_no|| current ;

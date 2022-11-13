@@ -66,10 +66,7 @@ class QueryRunner implements Runnable {
                                 query+=splited[i];
                             }
                             query+="]);";
-        
-
-                            // System.out.println(query);
-        
+                
                             c.createStatement().execute("BEGIN;");
             
                             c.createStatement().execute("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
@@ -78,24 +75,35 @@ class QueryRunner implements Runnable {
             
                             Statement statement = c.createStatement();
                             
-                            statement.executeQuery(createTableSQL);
+                            ResultSet rs=statement.executeQuery(createTableSQL);
         
                             c.createStatement().execute("commit;");
         
                             c.close();
         
-                            System.err.println(" Booked your ticket\n");
-        
-                            responseQuery="BOOKED YOUR TICKET";
+                            rs.next();
+                            responseQuery=rs.getString(1);
 
                             break;
         
                         } catch (SQLException e) {
-                            System.err.println(e.getClass().getName()+": "+e.getMessage());
-                            responseQuery="ERROR";
-                            // break;
+                            String a=e.getMessage();
+                            if(a.contains("100E")){
+                                responseQuery="TRAIN DOES EXIST";
+                                break;
+                            }
+                            else if(a.contains("200E")){
+                                responseQuery="TRAIN DOES NOT RUN ON THIS DAY";
+                                break;
+                            }
+                            else if(a.contains("300E")){
+                                responseQuery="TRAIN DOES NOT HAVE REQUIRED SEATS";
+                                break;
+                            }
+                            else{
+                                continue;
+                            }
                         }
-
                 }
 
 
