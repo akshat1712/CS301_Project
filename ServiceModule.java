@@ -37,62 +37,81 @@ class QueryRunner implements Runnable {
             // Read client query from the socket endpoint
             clientCommand = bufferedInput.readLine();
 
-        
-            // System.out.println("HELLO");
-
+            int size=0;
+            String train_number; 
+            String coach_type; 
+            String date ;
+            String query = "";
+            String query2="";
+            ResultSet rs1=null;
+            ResultSet rs2=null;
+            Connection c = null;
+            try{
+            c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/project", "cs301_pro", "1234");
+            
             while (!clientCommand.equals("#")) {
 
-                /********************************************/
 
                 while(true){
 
-                        Connection c = null;
+                        
                         try {
-                            c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/project", "cs301_pro", "1234");
-                            
+                                    
                             String[] splited = clientCommand.split("\\s+");
+
+                            size = splited.length;
         
-                            int size=splited.length;
-        
-                            String train_number=splited[size-3];
-                            String coach_type=splited[size-1];
-                            String date=splited[size-2];
+                            train_number = splited[size - 3];
+                            coach_type = splited[size - 1];
+                            date = splited[size - 2];
         
         
-                            String query="select insert_ticket("+splited[0]+",'"+train_number+"','"+coach_type+"','"+date+"',array[";
+                            query= String.format("select insert_ticket( %s , '%s' , '%s' , '%s' , array[",splited[0],train_number,coach_type,date);
+        
         
                             for (int i=1;i<size-3;i++){
                                 if( splited[i].endsWith(",")){
-                                    splited[i]="'"+splited[i].substring(0,splited[i].length()-1)+"',";
+                                    splited[i] = splited[i].substring(0, splited[i].length() - 1);
+                                    query=String.format("%s'%s',",query,splited[i]);
                                 }
                                 else{
-                                    splited[i]="'"+splited[i]+"'";
+                                    query=String.format("%s'%s'",query,splited[i]);
                                 }
-                                query+=splited[i];
                             }
-
-                            query+="]);";
+        
+                            query=String.format("%s]);",query);
             
                             c.createStatement().execute("BEGIN;");
             
                             c.createStatement().execute("SET TRANSACTION ISOLATION LEVEL READ COMMITTED;");
-        
-                            String createTableSQL = query;
-            
-                            Statement statement = c.createStatement();
                             
-                            ResultSet rs=statement.executeQuery(createTableSQL);
+                            rs1=c.createStatement().executeQuery(query);
         
                             c.createStatement().execute("commit;");
+                            c.createStatement().execute("end;");
         
-                            c.close();
-        
-                            rs.next();
-                            responseQuery=rs.getString(1);
+                            rs1.next();
+                            responseQuery=rs1.getString(1);
+
+                            query2=String.format("select * from ticket_passenger_%s where pnr='%s';",train_number,responseQuery);
+
+                            rs2=c.createStatement().executeQuery(query2);
+
+                            while (rs2.next()) {
+
+                                responseQuery=String.format("%s %s", responseQuery,rs2.getString(1));
+                                responseQuery=String.format("%s %s", responseQuery,rs2.getString(2));
+                                responseQuery=String.format("%s %s", responseQuery,rs2.getString(3));
+                                responseQuery=String.format("%s %s, ", responseQuery,rs2.getString(4));
+                            }
+                            responseQuery.concat("\n");
+                            
+                            
 
                             break;
         
                         } catch (SQLException e) {
+                            c.createStatement().execute("end;");
                             String a=e.getMessage();
                             if(a.contains("100E")){
                                 responseQuery="TRAIN DOES NOT EXIST";
@@ -108,23 +127,21 @@ class QueryRunner implements Runnable {
                             }
                             else{
                                 System.out.println(e.getMessage());
+                                
                                 continue;
                             }
-                        }
-                        finally{
-                            try {
-                                if (c != null) {
-                                    c.close();
-                                }
-                            } catch (SQLException ex) {
-                                System.out.println(ex.getMessage());
-                            }
+                            
                         }
                 }
                 printWriter.println(responseQuery);
                 clientCommand = bufferedInput.readLine();
             }
-
+            
+            c.close();
+            }
+            catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
             inputStream.close();
             bufferedInput.close();
             outputStream.close();

@@ -31,7 +31,7 @@ class sendQuery implements Runnable
             String inputfile = "./Input/" + Thread.currentThread().getName() + "_input.txt" ;
             String outputfile = "./Output/" +Thread.currentThread().getName() + "_output.txt" ;
 
-            System.out.println(Thread.currentThread().getName() );
+            // System.out.println(Thread.currentThread().getName() );
             //-----Initialising the Input & ouput file-streams and buffers-------
             OutputStreamWriter outputStream = new OutputStreamWriter(socketConnection
                                                                      .getOutputStream());

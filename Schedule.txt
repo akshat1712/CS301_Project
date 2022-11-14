@@ -68,5 +68,5 @@ insert into trains values('22517','12345','67890');
 insert into service_22517 values('2022-11-01',999,999,0,0);
 insert into service_04652 values('2022-11-01',999,999,0,0);
 
-
+select * from service_04652 ;
 select insert_ticket(3,'04652','AC','2022-11-01',array['cJCsDIjjkf','QOATKDpO','zM']);
