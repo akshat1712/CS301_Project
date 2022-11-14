@@ -156,7 +156,7 @@ commands =[
                     select SL_berth(current) into seat;
                     EXECUTE '
                                     insert into ticket_passenger_'||train_no||' 
-                                    values('''||names[cnt]|| ''','''||floor(current/num_seats)|| ''','''||mod(current,num_seats)|| ''','''||seat|| ''','''||pnr||''');	
+                                    values('''||names[cnt]|| ''','''||floor(current/num_seats+1)|| ''','''||mod(current,num_seats)+1|| ''','''||seat|| ''','''||pnr||''');	
                                 ';
                     current := current + 1;
                 end loop;
