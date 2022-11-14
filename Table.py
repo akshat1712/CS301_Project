@@ -101,7 +101,7 @@ commands =[
             num_seats := 18;
             EXECUTE '
                     select ac_curr_berth,ac_coach from service_'||train_no||' 
-                    where travel_date = '' '||date_travel ||' '';	
+                    where travel_date = '' '||date_travel ||' '' FOR UPDATE;	
             ' INTO current,total; 
             if current IS NULL then
                 raise exception '200E';
@@ -134,7 +134,7 @@ commands =[
             num_seats := 24;
             EXECUTE '
                         select sleeper_curr_berth,sleeper_coach from service_'||train_no||' 
-                        where travel_date = '' '||date_travel ||' '';	
+                        where travel_date = '' '||date_travel ||' '' FOR UPDATE;	
             ' INTO current,total;
             if current IS NULL then
                 raise exception '200E';

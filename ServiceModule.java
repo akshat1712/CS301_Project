@@ -40,7 +40,6 @@ class QueryRunner implements Runnable {
         
             // System.out.println("HELLO");
 
-
             while (!clientCommand.equals("#")) {
 
                 /********************************************/
@@ -76,7 +75,7 @@ class QueryRunner implements Runnable {
             
                             c.createStatement().execute("BEGIN;");
             
-                            c.createStatement().execute("SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;");
+                            c.createStatement().execute("SET TRANSACTION ISOLATION LEVEL READ COMMITTED;");
         
                             String createTableSQL = query;
             
@@ -96,7 +95,7 @@ class QueryRunner implements Runnable {
                         } catch (SQLException e) {
                             String a=e.getMessage();
                             if(a.contains("100E")){
-                                responseQuery="TRAIN DOES EXIST";
+                                responseQuery="TRAIN DOES NOT EXIST";
                                 break;
                             }
                             else if(a.contains("200E")){
@@ -108,7 +107,17 @@ class QueryRunner implements Runnable {
                                 break;
                             }
                             else{
+                                System.out.println(e.getMessage());
                                 continue;
+                            }
+                        }
+                        finally{
+                            try {
+                                if (c != null) {
+                                    c.close();
+                                }
+                            } catch (SQLException ex) {
+                                System.out.println(ex.getMessage());
                             }
                         }
                 }
