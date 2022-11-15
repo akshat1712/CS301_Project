@@ -245,10 +245,18 @@ commands =[
     """
     CREATE TABLE IF NOT EXISTS service(
         train_no VARCHAR(5) ,
-        station_name VARCHAR(50) NOT NULL,
-        arrival_time interval,
-        departure_time interval
-        )
+        station_departure VARCHAR(5) NOT NULL,
+        station_arrival VARCHAR(5) NOT NULL,
+        departure_time time,
+        departure_day int,
+        arrival_time time,
+        arrival_day int
+    );
+
+    select dept.station_arrival, dept.departure_time, dept.arrival_time, arrv.departure_time , arrv.arrival_time from (select * from service where station_departure = 'abcde') dept,
+    (select * from service where station_arrival = 'asdfg') arrv
+    where dept.station_arrival = arrv.station_departure 
+    and ((dept.arrival_time + interval '1 hour') < arrv.departure_time) and ((dept.arrival_time + interval '3 hour') > arrv.departure_time) ;
     """
 ]
 import time
