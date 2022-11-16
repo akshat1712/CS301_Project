@@ -23,7 +23,8 @@
 --     train_2 VARCHAR(5),
 --     hop_time interval,
 --     end_station VARCHAR(50) NOT NULL,
---     arrival_time interval NOT NULL
+--     arrival_time interval NOT NULL,
+--     approx_days integer NOT NULL
 -- );
 
 /*
@@ -66,10 +67,9 @@ $$
             where station_name = all_stations_row.station_name
             loop
                 for train_2 in select * from service_extra
-                where station_name = all_stations_row.station_name
+                            where station_name = all_stations_row.station_name
                 loop
-                    if train_1.train_no < train_2.train_no and
-                        (train_2.departure_time - train_1.arrival_time between '-24:00' and '-12:00' or
+                    if train_1.train_no != train_2.train_no and (train_2.departure_time - train_1.arrival_time between '-24:00' and '-12:00' or
                         train_2.departure_time - train_1.arrival_time between '0:00' and '12:00') then
                         INSERT INTO valid_hops VALUES(train_1.train_no, train_2.train_no, all_stations_row.station_name, train_2.departure_time, train_2.departure_time - train_1.arrival_time);
                     end if;
@@ -89,6 +89,10 @@ $$
         train_1 record;
         train_2 record;
         hop_routes_row record;
+        hop_day0 record;
+        hop_day1 record;
+        start_day record;
+        end_day record;
     begin
         EXECUTE '
                     DROP TABLE IF EXISTS all_routes;
@@ -102,7 +106,8 @@ $$
                         train_2 VARCHAR(5),
                         hop_time interval,
                         end_station VARCHAR(50) NOT NULL,
-                        arrival_time interval NOT NULL
+                        arrival_time interval NOT NULL,
+                        approx_days integer NOT NULL
                     );
                 ';
         for train_1 in select * from service_extra
@@ -111,8 +116,12 @@ $$
             for train_2 in select * from service_extra
             where station_name = end_station
             loop
-                if train_1.train_no = train_2.train_no then
-                    INSERT INTO all_routes VALUES(start_station, train_1.train_no, train_1.departure_time, NULL, NULL, NULL, end_station, train_2.arrival_time);
+                if train_1.train_no = train_2.train_no 
+                    and (train_1.arrival_time < train_2.departure_time 
+                        or train_1.day_num < train_2.day_num) then
+                        select day_num into start_day from service_extra where train_no = train_1.train_no and station_name = start_station;
+                        select day_num into end_day from service_extra where train_no = train_2.train_no and station_name = end_station;
+                    INSERT INTO all_routes VALUES(start_station, train_1.train_no, train_1.departure_time, NULL, NULL, NULL, end_station, train_2.arrival_time, end_day.day_num - start_day.day_num);
                 else
                     for hop_routes_row in (
                         select * from valid_hops v
@@ -120,10 +129,14 @@ $$
                         v.train_2 = train_2.train_no and 
                         v.common_point <> start_station and
                         v.common_point <> end_station and
-                        v.departure_time < train_2.arrival_time
+                        (v.departure_time < train_2.arrival_time or train_2.day_num > 0)
                     )
                     loop
-                        INSERT INTO all_routes VALUES(start_station, train_1.train_no, train_1.departure_time, hop_routes_row.common_point, train_2.train_no, hop_routes_row.departure_time, end_station, train_2.arrival_time);
+                        select day_num into start_day from service_extra where train_no = train_1.train_no and station_name = start_station;
+                        select day_num into end_day from service_extra where train_no = train_2.train_no and station_name = end_station;
+                        select day_num into hop_day0 from service_extra where train_no = train_1.train_no and station_name = hop_routes_row.common_point;
+                        select day_num into hop_day1 from service_extra where train_no = train_2.train_no and station_name = hop_routes_row.common_point;
+                        INSERT INTO all_routes VALUES(start_station, train_1.train_no, train_1.departure_time, hop_routes_row.common_point, train_2.train_no, hop_routes_row.departure_time, end_station, train_2.arrival_time, hop_day0.day_num - start_day.day_num + end_day.day_num - hop_day1.day_num);
                     end loop;
                 end if;
             end loop;

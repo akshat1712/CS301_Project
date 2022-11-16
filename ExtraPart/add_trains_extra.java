@@ -12,7 +12,7 @@ public class add_trains_extra {
             String[] trains = {"12012", "12046", "12058", "12650", "12992", "19412", "22692"};
             for (int i=0;i<trains.length;i++)
             {
-                String inputfile = "C:/Users/prana/OneDrive/Desktop/Work/CS301-Project/" + trains[i] + ".txt";
+                String inputfile = "./ExtraPart/" + trains[i] + ".txt";
                 // String inputfile="./Trainschedule.txt";
                 File queries = new File(inputfile);
         
